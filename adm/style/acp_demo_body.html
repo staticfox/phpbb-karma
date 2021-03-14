@@ -1,0 +1,76 @@
+<!-- INCLUDE overall_header.html -->
+
+<h1>{L_ACP_KARMA_TITLE}</h1>
+
+<form id="acp_board" method="post" action="{U_ACTION}">
+
+	<fieldset>
+		<legend>{L_SETTINGS}</legend>
+		<dl>
+			<dt><label for="karma_display_user_id">{L_ACP_KARMA_DISPLAY_USER_ID}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_display_user_id" value="1" <!-- IF KARMA_DISPLAY_USER_ID -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_display_user_id" value="0" <!-- IF not KARMA_DISPLAY_USER_ID -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_display_num_karma_given">{L_ACP_KARMA_DISPLAY_NUM_KARMA_GIVEN}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_display_num_karma_given" value="1" <!-- IF KARMA_DISPLAY_NUM_KARMA_GIVEN -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_display_num_karma_given" value="0" <!-- IF not KARMA_DISPLAY_NUM_KARMA_GIVEN -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_display_num_smites_given">{L_ACP_KARMA_DISPLAY_NUM_SMITES_GIVEN}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_display_num_smites_given" value="1" <!-- IF KARMA_DISPLAY_NUM_SMITES_GIVEN -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_display_num_smites_given" value="0" <!-- IF not KARMA_DISPLAY_NUM_SMITES_GIVEN -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_display_last_user_smite_given">{L_ACP_KARMA_DISPLAY_LAST_USER_SMITE_GIVEN}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_display_last_user_smite_given" value="1" <!-- IF KARMA_DISPLAY_LAST_USER_SMITE_GIVEN -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_display_last_user_smite_given" value="0" <!-- IF not KARMA_DISPLAY_LAST_USER_SMITE_GIVEN -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_display_last_user_smite_received">{L_ACP_KARMA_DISPLAY_LAST_USER_SMITE_RECEIVED}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_display_last_user_smite_received" value="1" <!-- IF KARMA_DISPLAY_LAST_USER_SMITE_RECEIVED -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_display_last_user_smite_received" value="0" <!-- IF not KARMA_DISPLAY_LAST_USER_SMITE_RECEIVED -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_per_user_cooldown_minutes">{L_ACP_KARMA_PER_USER_COOL_DOWN_MINS}{L_COLON}</label></dt>
+			<dd><label><input type="number" min="1" max="999" name="karma_per_user_cooldown_minutes" value="{KARMA_PER_USER_COOLDOWN_MINUTES}"></label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_global_cooldown_minutes">{L_ACP_KARMA_GLOBAL_COOL_DOWN_MINS}{L_COLON}</label></dt>
+			<dd><label><input type="number" min="1" max="999" name="karma_global_cooldown_minutes" value="{KARMA_GLOBAL_COOLDOWN_MINUTES}"></label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_global_cooldown_count">{L_ACP_KARMA_GLOBAL_COOL_DOWN_COUNT}{L_COLON}</label></dt>
+			<dd><label><input type="number" min="1" max="999" name="karma_global_cooldown_count" value="{KARMA_GLOBAL_COOLDOWN_COUNT}"></label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_mods_bypass_limits">{L_ACP_KARMA_MODS_BYPASS_LIMITS}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_mods_bypass_limits" value="1" <!-- IF ACP_KARMA_MODS_BYPASS_LIMITS -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_mods_bypass_limits" value="0" <!-- IF not ACP_KARMA_MODS_BYPASS_LIMITS -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="karma_admins_bypass_limits">{L_ACP_KARMA_ADMINS_BYPASS_LIMITS}{L_COLON}</label></dt>
+			<dd><label><input type="radio" class="radio" name="karma_admins_bypass_limits" value="1" <!-- IF ACP_KARMA_ADMINS_BYPASS_LIMITS -->checked="checked"<!-- ENDIF -->/> {L_YES}</label>
+				<label><input type="radio" class="radio" name="karma_admins_bypass_limits" value="0" <!-- IF not ACP_KARMA_ADMINS_BYPASS_LIMITS -->checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
+
+	</fieldset>
+
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" id="submit" name="submit" value="{L_SUBMIT}" />&nbsp;
+		<input class="button2" type="submit" name="preview" value="{L_PREVIEW}" />
+		{S_FORM_TOKEN}
+	</fieldset>
+
+</form>
+
+<!-- INCLUDE overall_footer.html -->

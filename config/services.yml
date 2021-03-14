@@ -1,0 +1,24 @@
+services:
+    matt.karma.controller:
+        class: matt\karma\controller\main
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '@dbal.conn'
+            - '%core.table_prefix%'
+            - '@request'
+
+    matt.karma.listener:
+        class: matt\karma\event\main_listener
+        arguments:
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '@dbal.conn'
+            - '%core.php_ext%'
+            - '%core.table_prefix%'
+            - '@config'
+        tags:
+            - { name: event.listener }

@@ -1,0 +1,7 @@
+matt_karma_controller:
+    path: /karma/{target_user_id}/{post_id}/{action}
+    defaults: { _controller: matt.karma.controller:handle }
+    requirements:
+      target_user_id: \d+
+      post_id: \d+
+      action: \d
