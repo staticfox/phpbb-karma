@@ -6,8 +6,6 @@ This is an extension for phpBB 3.2.10+ that adds the ability to rate users based
 
 ## Installation
 
-Copy the extension to phpBB/ext/matt/karma
-
 In the root of your phpBB3 install, run the following command:
 
 ```
