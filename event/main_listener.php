@@ -40,9 +40,6 @@ class main_listener implements EventSubscriberInterface
 	/* @var \php\database */
 	protected $db;
 
-	/* @var string phpEx */
-	protected $php_ext;
-
 	/* @var string DB table prefix */
 	protected $table_prefix;
 
@@ -52,19 +49,18 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Constructor
 	 *
-	 * @param \phpbb\controller\helper	$helper		Controller helper object
-	 * @param \phpbb\template\template	$template	Template object
-	 * @param \phpbb\user               $user       User object
-	 * @param \phpbb\db\driver\driver_interface	$db
-	 * @param string                    $php_ext    phpEx
-	 * @param \phpbb\config\config		$config
+	 * @param \phpbb\controller\helper			$helper		  Controller helper object
+	 * @param \phpbb\template\template			$template	  Template object
+	 * @param \phpbb\user              			$user         User object
+	 * @param \phpbb\db\driver\driver_interface	$db           Database handle
+	 * @param string              				table_prefix  The DB table's prefix (phpbb_)
+	 * @param \phpbb\config\config				$config 	  phpbb's configuration
 	 */
 	public function __construct(
 		\phpbb\controller\helper $helper,
 		\phpbb\template\template $template,
 		\phpbb\user $user,
 		\phpbb\db\driver\driver_interface $db,
-		$php_ext,
 		$table_prefix,
 		\phpbb\config\config $config
 	)
@@ -73,7 +69,6 @@ class main_listener implements EventSubscriberInterface
 		$this->template = $template;
 		$this->user     = $user;
 		$this->db       = $db;
-		// $this->php_ext  = $php_ext;
 		$this->table_prefix = $table_prefix;
 		$this->config = $config;
 	}

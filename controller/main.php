@@ -18,51 +18,45 @@ class main
 	/* @var \phpbb\config\config */
 	protected $config;
 
-	/* @var \phpbb\controller\helper */
-	protected $helper;
-
-	/* @var \phpbb\template\template */
-	protected $template;
-
 	/* @var \phpbb\user */
 	protected $user;
 
 	/* @ \php\database */
 	protected $db;
 
+	/* @ \phpbb\auth\auth */
+	protected $auth;
+
 	/* @var string DB table prefix */
 	protected $table_prefix;
-
-	/* @var \phpbb\request\request */
-	protected $request;
 
 	/**
 	 * Constructor
 	 *
 	 * @param \phpbb\config\config		$config
-	 * @param \phpbb\controller\helper	$helper
-	 * @param \phpbb\template\template	$template
 	 * @param \phpbb\user				$user
 	 * @param \php\database             $db
-	 * @param \phpbb\request\request    $request
+	 * @param \phpbb\auth\auth          $auth
+	 * @param string                    $table_prefix
 	 */
 	public function __construct(
 		\phpbb\config\config $config,
-		\phpbb\controller\helper $helper,
-		\phpbb\template\template $template,
 		\phpbb\user $user,
 		\phpbb\db\driver\driver_interface $db,
-		$table_prefix,
-		\phpbb\request\request $request
+		\phpbb\auth\auth $auth,
+		$table_prefix
 	)
 	{
 		$this->config = $config;
-		$this->helper = $helper;
-		$this->template = $template;
 		$this->user = $user;
 		$this->db = $db;
+		$this->auth = $auth;
 		$this->table_prefix = $table_prefix;
-		// $this->request = $request;
+	}
+
+	private function get_return_link($url)
+	{
+		return '<br /><br /><a href="' . $url . ' ">&laquo; ' . $this->user->lang['BACK_TO_PREV'] . '</a><br /><br />';
 	}
 
 	/**
@@ -83,64 +77,55 @@ class main
 
 		$back_url = '/forums/viewtopic.php?p=' . $post_id . '#p' . $post_id;
 
-		$this->template->assign_vars([
-			'KARMA_LINK_ACTION'	=> $back_url,
-			'KARMA_POST_ID'		=> $post_id,
-			'L_BACK_TO_PREV'	=> $this->user->lang['BACK_TO_PREV']
-		]);
-
-		$action = (int)$action;
-
-		// Make sure the post exists.
-		// TODO: Make sure the user has access to the post
-		$sql = 'SELECT COUNT(*) AS post_count
+		// Make sure the post exists. We do this first since it's important for
+		// redirect purposes.
+		$sql = 'SELECT poster_id, forum_id
 				FROM ' . POSTS_TABLE . '
-				WHERE post_id = ' . $post_id . ';';
+				WHERE post_id = ' . $post_id . ' AND poster_id = ' . $target_user_id . ';';
 		$result = $this->db->sql_query($sql);
-		$post_count = (int) $this->db->sql_fetchfield('post_count');
+		$row = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
+		$poster_id = (int) $row['poster_id'];
+		$forum_id = (int) $row['forum_id'];
 
-		if ($post_count == 0)
+		// Make sure the post exists, the target is the person that made the post
+		// and the current user has access to view the forum where the post lives.
+		if (!$poster_id || $target_user_id != $poster_id || !$this->auth->acl_get('f_read', $forum_id))
 		{
-			$this->template->assign_vars([
-				'KARMA_LINK_ACTION' => '/forums',
-				'KARMA_MESSAGE' 	=> $this->user->lang('KARMA_ACTION_POST_NOT_FOUND')
-			]);
-			return $this->helper->render('karma_body.html');
+			$back_url = '/forums';
+			trigger_error($this->user->lang('KARMA_ACTION_POST_NOT_FOUND') . $this->get_return_link($back_url));
 		}
 
 		// Don't allow anonymous votes
 		if ($source_user_id == ANONYMOUS)
 		{
-			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_NO_ANONYMOUS_VOTES'));
-			return $this->helper->render('karma_body.html');
+			trigger_error($this->user->lang('KARMA_ACTION_NO_ANONYMOUS_VOTES') . $this->get_return_link($back_url));
 		}
 
 		// Don't allow users to vote for themselves
 		if ($source_user_id == $target_user_id)
 		{
-			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_CANT_SELF_VOTE'));
-			return $this->helper->render('karma_body.html');
+			trigger_error($this->user->lang('KARMA_ACTION_CANT_SELF_VOTE') . $this->get_return_link($back_url));
 		}
 
 		// Only 0 and 1 are valid actions
+		$action = (int)$action;
 		if ($action != 0 && $action != 1)
 		{
-			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_ERROR'));
-			return $this->helper->render('karma_body.html');
+			trigger_error($this->user->lang('KARMA_ACTION_ERROR') . $this->get_return_link($back_url));
 		}
 
 		// Make sure the target user exists
-		$sql = 'SELECT username_clean
+		$sql = 'SELECT username
 				FROM ' . USERS_TABLE . '
 				WHERE user_id = ' . $target_user_id . ';';
 		$result = $this->db->sql_query($sql);
-		$username_clean = $this->db->sql_fetchfield('username_clean');
+		$username = $this->db->sql_fetchfield('username');
 		$this->db->sql_freeresult($result);
-		if (!$username_clean)
+		if (!$username)
 		{
-			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_USER_NOT_FOUND'));
-			return $this->helper->render('karma_body.html');
+			// I don't think this will ever hit
+			trigger_error($this->user->lang('KARMA_ACTION_USER_NOT_FOUND') . $this->get_return_link($back_url));
 		}
 
 		// Dont allow people to smite banned users
@@ -152,8 +137,7 @@ class main
 		$this->db->sql_freeresult($result);
 		if ($ban_count > 0)
 		{
-			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_USER_IS_BANNED'));
-			return $this->helper->render('karma_body.html');
+			trigger_error($this->user->lang('KARMA_ACTION_USER_IS_BANNED') . $this->get_return_link($back_url));
 		}
 
 		// Check if the user is on a user-specific cooldown
@@ -166,20 +150,9 @@ class main
 			$result = $this->db->sql_query($sql);
 			$last_ts_for_user = $this->db->sql_fetchfield('last_ts_for_user');
 			$this->db->sql_freeresult($result);
-
-			if ($last_ts_for_user)
+			if ($last_ts_for_user && ($now - (int) $last_ts_for_user) < (60 * $user_cooldown_minutes))
 			{
-				$last_ts_for_user = (int) $last_ts_for_user;
-			}
-			else
-			{
-				$last_ts_for_user = 0;
-			}
-
-			if ($last_ts_for_user && $now - $last_ts_for_user < (60 * $user_cooldown_minutes))
-			{
-				$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_COOLDOWN'));
-				return $this->helper->render('karma_body.html');
+				trigger_error($this->user->lang('KARMA_ACTION_COOLDOWN') . $this->get_return_link($back_url));
 			}
 		}
 
@@ -193,11 +166,9 @@ class main
 			$result = $this->db->sql_query($sql);
 			$recent_actions = (int) $this->db->sql_fetchfield('recent_actions');
 			$this->db->sql_freeresult($result);
-
 			if ($recent_actions >= $global_cooldown_count)
 			{
-				$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_COOLDOWN'));
-				return $this->helper->render('karma_body.html');
+				trigger_error($this->user->lang('KARMA_ACTION_COOLDOWN') . $this->get_return_link($back_url));
 			}
 		}
 
@@ -209,8 +180,6 @@ class main
 		$this->db->sql_freeresult($result);
 
 		$lang_message = $action == 0 ? 'KARMA_ACTION_USER_SMITED' : 'KARMA_ACTION_USER_APPLAUDED';
-
-		$this->template->assign_var('KARMA_MESSAGE', $this->user->lang($lang_message, $username_clean));
-		return $this->helper->render('karma_body.html');
+		trigger_error($this->user->lang($lang_message, $username) . $this->get_return_link($back_url));
 	}
 }

@@ -3,12 +3,10 @@ services:
         class: matt\karma\controller\main
         arguments:
             - '@config'
-            - '@controller.helper'
-            - '@template'
             - '@user'
             - '@dbal.conn'
+            - '@auth'
             - '%core.table_prefix%'
-            - '@request'
 
     matt.karma.listener:
         class: matt\karma\event\main_listener
@@ -17,7 +15,6 @@ services:
             - '@template'
             - '@user'
             - '@dbal.conn'
-            - '%core.php_ext%'
             - '%core.table_prefix%'
             - '@config'
         tags:
