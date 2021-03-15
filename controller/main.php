@@ -91,6 +91,24 @@ class main
 
 		$action = (int)$action;
 
+		// Make sure the post exists.
+		// TODO: Make sure the user has access to the post
+		$sql = 'SELECT COUNT(*) AS post_count
+				FROM ' . POSTS_TABLE . '
+				WHERE post_id = ' . $post_id . ';';
+		$result = $this->db->sql_query($sql);
+		$post_count = (int) $this->db->sql_fetchfield('post_count');
+		$this->db->sql_freeresult($result);
+
+		if ($post_count == 0)
+		{
+			$this->template->assign_vars([
+				'KARMA_LINK_ACTION' => '/forums',
+				'KARMA_MESSAGE' 	=> $this->user->lang('KARMA_ACTION_POST_NOT_FOUND')
+			]);
+			return $this->helper->render('karma_body.html');
+		}
+
 		// Only 0 and 1 are valid actions
 		if ($action != 0 && $action != 1)
 		{
@@ -121,24 +139,6 @@ class main
 		if ($ban_count > 0)
 		{
 			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_USER_IS_BANNED'));
-			return $this->helper->render('karma_body.html');
-		}
-
-		// Make sure the post exists
-		// TODO: Make sure the user has access to the post
-		$sql = 'SELECT COUNT(*) AS post_count
-				FROM ' . POSTS_TABLE . '
-				WHERE post_id = ' . $post_id . ';';
-		$result = $this->db->sql_query($sql);
-		$post_count = (int) $this->db->sql_fetchfield('post_count');
-		$this->db->sql_freeresult($result);
-
-		if ($post_count == 0)
-		{
-			$this->template->assign_vars([
-				'KARMA_LINK_ACTION' => '/forums',
-				'KARMA_MESSAGE' 	=> $this->user->lang('KARMA_ACTION_POST_NOT_FOUND')
-			]);
 			return $this->helper->render('karma_body.html');
 		}
 
