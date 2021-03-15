@@ -102,6 +102,12 @@ class main
 			trigger_error($this->user->lang('KARMA_ACTION_NO_ANONYMOUS_VOTES') . $this->get_return_link($back_url));
 		}
 
+		// Don't allow votes from bots
+		if ($this->user->data['user_type'] == USER_IGNORE)
+		{
+			trigger_error($this->user->lang('KARMA_ACTION_NO_ANONYMOUS_VOTES') . $this->get_return_link($back_url));
+		}
+
 		// Don't allow users to vote for themselves
 		if ($source_user_id == $target_user_id)
 		{

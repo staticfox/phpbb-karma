@@ -115,6 +115,13 @@ class main_listener implements EventSubscriberInterface
 		$post_row['KARMA_SCORE'] = $this->db->sql_fetchfield('karma_score');
 		$this->db->sql_freeresult($result);
 
+		// Don't render links for bots
+		if ($this->user->data['user_type'] == USER_IGNORE)
+		{
+			$post_row['KARMA_HIDE_CONTROLS_AND_INFO'] = true;
+			goto finish;
+		}
+
 		// '$POSTER_ID.$APPLAUDS_GIVEN.$SMITES_GIVEN.$LAST_SMITE_GIVEN_TO_ID.$LAST_SMITE_RECEIVED_FROM_ID'
 		$karma_info = "";
 
