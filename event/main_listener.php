@@ -131,6 +131,8 @@ class main_listener implements EventSubscriberInterface
 			$karma_info .= $post_row['POSTER_ID'] . '.';
 		}
 
+		$this->db->sql_transaction('begin');
+
 		// karmas given
 		if ($this->config[$tbl_pfx . 'num_karma_given'])
 		{
@@ -183,11 +185,27 @@ class main_listener implements EventSubscriberInterface
 			$karma_info .= $smite_received_from . '.';
 		}
 
+		$this->db->sql_transaction('rollback');
+
 		$karma_info = trim($karma_info, '.');
 
 		$post_row['KARMA_INFOLINE'] = $karma_info;
 
-		// Dont allow people to smite banned users
+		// Don't allow anonymous voting
+		if ($this->user->data['user_id'] == ANONYMOUS)
+		{
+			$post_row['KARMA_HIDE_CONTROLS_AND_INFO'] = true;
+			goto finish;
+		}
+
+		// Don't allow people to smite/applaud themselves
+		if ($post_row['POSTER_ID'] == $this->user->data['user_id'])
+		{
+			$post_row['KARMA_IS_SELF'] = true;
+			goto finish;
+		}
+
+		// Don't allow people to smite banned users
 		$is_banned = false;
 		$sql = 'SELECT COUNT(*) AS ban_count
 				FROM ' . BANLIST_TABLE . '
@@ -197,26 +215,25 @@ class main_listener implements EventSubscriberInterface
 		$this->db->sql_freeresult($result);
 		if ($ban_count > 0)
 		{
-			$is_banned = true;
-			$post_row['U_APPLAUD_USER'] = '#p' . $post_row['POST_ID'];
-			$post_row['U_SMITE_USER'] = '#p' . $post_row['POST_ID'];
+			$post_row['KARMA_HIDE_CONTROLS_AND_INFO'] = true;
+			goto finish;
 		}
 
-		if (!$is_banned)
-		{
-			$post_row['U_APPLAUD_USER']	= $this->helper->route('matt_karma_controller', [
-				'target_user_id' => $post_row['POSTER_ID'],
-				'post_id' => $post_row['POST_ID'],
-				'action' => 1,
-			]);
+		// User is allow to applaud/smite this person
+		$post_row['U_APPLAUD_USER']	= $this->helper->route('matt_karma_controller', [
+			'target_user_id' => $post_row['POSTER_ID'],
+			'post_id' => $post_row['POST_ID'],
+			'action' => 1,
+		]);
 
-			$post_row['U_SMITE_USER'] = $this->helper->route('matt_karma_controller', [
-				'target_user_id' => $post_row['POSTER_ID'],
-				'post_id' => $post_row['POST_ID'],
-				'action' => 0,
-			]);
-		}
+		$post_row['U_SMITE_USER'] = $this->helper->route('matt_karma_controller', [
+			'target_user_id' => $post_row['POSTER_ID'],
+			'post_id' => $post_row['POST_ID'],
+			'action' => 0,
+		]);
 
+// Jump label so we can re-assign post_row and bail
+finish:
 		$event['post_row'] = $post_row;
 	}
 }

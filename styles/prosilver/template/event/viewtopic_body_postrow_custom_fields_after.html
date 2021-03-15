@@ -1,3 +1,7 @@
 <dd class="profile-custom-field profile-karma-score"><strong>Karma{L_COLON}</strong> {postrow.KARMA_SCORE}</dd>
+<!-- IF not postrow.KARMA_IS_SELF and not postrow.KARMA_HIDE_CONTROLS_AND_INFO -->
 <dd class="profile-custom-field profile-karma-control"><a href="{postrow.U_APPLAUD_USER}">applaud</a> / <a href="{postrow.U_SMITE_USER}">smite</a></dd>
+<!-- ENDIF -->
+<!-- IF not postrow.KARMA_HIDE_CONTROLS_AND_INFO -->
 <dd class="profile-custom-field profile-karma-info">{postrow.KARMA_INFOLINE}</dd>
+<!-- ENDIF -->

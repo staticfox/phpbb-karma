@@ -23,6 +23,8 @@ $lang = array_merge($lang, array(
 	'KARMA_ACTION_COOLDOWN'	=> 'you must wait until you can applaud/smite again',
 	'KARMA_ACTION_USER_NOT_FOUND' => 'user not found',
 	'KARMA_ACTION_USER_IS_BANNED' => 'cannot applaud/smite a banned user',
+	'KARMA_ACTION_CANT_SELF_VOTE' => 'cannot applaud/smite yourself',
+	'KARMA_ACTION_NO_ANONYMOUS_VOTES' => 'you must be a registered user in order to use the karma system',
 	'KARMA_ACTION_POST_NOT_FOUND' => 'post not found',
 
 	'KARMA_ACTION_USER_APPLAUDED'		=> 'applauded %s successfully',

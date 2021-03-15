@@ -109,6 +109,20 @@ class main
 			return $this->helper->render('karma_body.html');
 		}
 
+		// Don't allow anonymous votes
+		if ($source_user_id == ANONYMOUS)
+		{
+			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_NO_ANONYMOUS_VOTES'));
+			return $this->helper->render('karma_body.html');
+		}
+
+		// Don't allow users to vote for themselves
+		if ($source_user_id == $target_user_id)
+		{
+			$this->template->assign_var('KARMA_MESSAGE', $this->user->lang('KARMA_ACTION_CANT_SELF_VOTE'));
+			return $this->helper->render('karma_body.html');
+		}
+
 		// Only 0 and 1 are valid actions
 		if ($action != 0 && $action != 1)
 		{
